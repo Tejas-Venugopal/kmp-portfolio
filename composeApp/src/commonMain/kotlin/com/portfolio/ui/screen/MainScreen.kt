@@ -1,10 +1,5 @@
 package com.portfolio.ui.screen
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,6 +26,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -43,6 +40,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,7 +66,6 @@ import com.portfolio.feature.portfolio.Project
 import com.portfolio.platform.openUrl
 import com.portfolio.ui.theme.ElectricEmerald
 import com.portfolio.ui.theme.MinimalTokens
-import com.portfolio.ui.theme.PureWhite
 
 // ─── Nav destinations ─────────────────────────────────────────────────────────
 
@@ -79,30 +76,42 @@ private enum class NavTab { Profile, Work, Contact }
 @Composable
 fun MainScreen(viewModel: PortfolioViewModel = remember { PortfolioViewModel() }) {
     val state by viewModel.state.collectAsState()
-    var selectedTab by remember { mutableStateOf(NavTab.Profile) }
+    val tabs = NavTab.entries
+    val pagerState = rememberPagerState(initialPage = 0) { tabs.size }
+
+    // Tab tap → scroll pager
+    var pendingTab by remember { mutableStateOf<NavTab?>(null) }
+    LaunchedEffect(pendingTab) {
+        pendingTab?.let { tab ->
+            pagerState.animateScrollToPage(tabs.indexOf(tab))
+            pendingTab = null
+        }
+    }
+
+    // Pager swipe → update selected tab indicator
+    val selectedTab = tabs[pagerState.currentPage]
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { StickyNavBar(selected = selectedTab, onSelect = { selectedTab = it }) },
+        topBar = {
+            StickyNavBar(
+                selected = selectedTab,
+                onSelect = { pendingTab = it },
+            )
+        },
         bottomBar = { Footer() },
     ) { padding ->
-        Box(
-            Modifier
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-        ) {
-            AnimatedContent(
-                targetState = selectedTab,
-                transitionSpec = {
-                    (fadeIn() + scaleIn(initialScale = 0.95f)) togetherWith fadeOut()
-                },
-                modifier = Modifier.fillMaxSize(),
-            ) { tab ->
-                when (tab) {
-                    NavTab.Profile -> ProfileSection()
-                    NavTab.Work    -> WorkSection(state, viewModel::dispatch)
-                    NavTab.Contact -> ContactSection()
-                }
+            beyondViewportPageCount = 1,
+        ) { page ->
+            when (tabs[page]) {
+                NavTab.Profile -> ProfileSection()
+                NavTab.Work    -> WorkSection(state, viewModel::dispatch)
+                NavTab.Contact -> ContactSection()
             }
         }
     }
@@ -117,17 +126,17 @@ private fun StickyNavBar(selected: NavTab, onSelect: (NavTab) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
-            .border(width = MinimalTokens.BorderWidth, color = ElectricEmerald.copy(alpha = 0.25f))
+            .border(width = MinimalTokens.BorderWidth, color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
             .padding(top = systemTop)
             .padding(horizontal = 32.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(32.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        NavTab.entries.forEach { tab ->
+            NavTab.entries.forEach { tab ->
             val isSelected = tab == selected
             Text(
                 text = tab.name.uppercase(),
-                color = if (isSelected) ElectricEmerald else PureWhite,
+                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
                 fontFamily = FontFamily.Monospace,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                 fontSize = 14.sp,
@@ -182,7 +191,7 @@ private fun ProfileBio(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
-                .border(MinimalTokens.BorderWidth, ElectricEmerald, CircleShape),
+                .border(MinimalTokens.BorderWidth, MaterialTheme.colorScheme.primary, CircleShape),
         )
         Spacer(Modifier.height(28.dp))
         Text(
@@ -205,11 +214,11 @@ private fun ProfileBio(modifier: Modifier = Modifier) {
         )
         Spacer(Modifier.height(32.dp))
         OutlinedButton(
-            onClick = { openUrl("mailto:tejas@example.com") },
-            border = BorderStroke(MinimalTokens.BorderWidth, ElectricEmerald),
+            onClick = { openUrl("mailto:tejasvenugopal.offical@example.com") },
+            border = BorderStroke(MinimalTokens.BorderWidth, MaterialTheme.colorScheme.primary),
             colors = ButtonDefaults.outlinedButtonColors(
                 containerColor = Color.Transparent,
-                contentColor = ElectricEmerald,
+                contentColor = MaterialTheme.colorScheme.primary,
             ),
         ) {
             Text(
@@ -232,7 +241,7 @@ private fun StatsWidget(modifier: Modifier = Modifier) {
     )
     Column(
         modifier
-            .border(MinimalTokens.BorderWidth, ElectricEmerald)
+            .border(MinimalTokens.BorderWidth, MaterialTheme.colorScheme.primary)
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(0.dp),
     ) {
@@ -240,7 +249,7 @@ private fun StatsWidget(modifier: Modifier = Modifier) {
             "// stats",
             fontFamily = FontFamily.Monospace,
             fontSize = 12.sp,
-            color = ElectricEmerald.copy(alpha = 0.6f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
             modifier = Modifier.padding(bottom = 20.dp),
         )
         stats.chunked(2).forEach { pair ->
@@ -252,13 +261,13 @@ private fun StatsWidget(modifier: Modifier = Modifier) {
                     Column(Modifier.weight(1f).padding(bottom = 24.dp)) {
                         Text(
                             text = value,
-                            color = ElectricEmerald,
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Black,
                             fontSize = 36.sp,
                         )
-                        Text(
-                            text = label,
-                            color = PureWhite.copy(alpha = 0.65f),
+        Text(
+            text = label,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f),
                             fontFamily = FontFamily.Monospace,
                             fontSize = 12.sp,
                         )
@@ -289,7 +298,7 @@ fun WorkSection(
                     Modifier.fillMaxWidth().padding(48.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator(color = ElectricEmerald)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -310,9 +319,9 @@ fun WorkSection(
 @Composable
 fun ContactSection() {
     val links = listOf(
-        "LinkedIn" to "https://linkedin.com/in/yourprofile",
-        "GitHub"   to "https://github.com/yourhandle",
-        "Email"    to "mailto:tejas@example.com",
+        "LinkedIn" to "https://www.linkedin.com/in/tejas-v-71b3aa23b?utm_source=share_via&utm_content=profile&utm_medium=member_ios",
+        "GitHub"   to "https://github.com/Tejas-Venugopal",
+        "Email"    to "mailto:tejasvenugopal.official@example.com",
     )
     Column(
         Modifier
@@ -354,7 +363,7 @@ private fun ContactLink(label: String, url: String) {
         Modifier
             .border(
                 width = MinimalTokens.BorderWidth,
-                color = if (pressed) ElectricEmerald else PureWhite.copy(alpha = 0.4f),
+                color = if (pressed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
             )
             .background(Color.Transparent)
             .clickable(
@@ -369,7 +378,7 @@ private fun ContactLink(label: String, url: String) {
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
-            color = if (pressed) ElectricEmerald else PureWhite,
+            color = if (pressed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
         )
     }
 }
@@ -390,7 +399,7 @@ private fun ProjectCard(project: Project, onClick: () -> Unit) {
             hoveredElevation = MinimalTokens.Elevation,
             focusedElevation = MinimalTokens.Elevation,
         ),
-        border = BorderStroke(MinimalTokens.BorderWidth, ElectricEmerald),
+        border = BorderStroke(MinimalTokens.BorderWidth, MaterialTheme.colorScheme.primary),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(Modifier.padding(24.dp)) {
@@ -422,7 +431,7 @@ private fun ProjectCard(project: Project, onClick: () -> Unit) {
                             tool,
                             fontFamily = FontFamily.Monospace,
                             fontSize = 12.sp,
-                            color = ElectricEmerald,
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
@@ -448,7 +457,7 @@ private fun Footer() {
                 text = label,
                 fontFamily = FontFamily.Monospace,
                 fontSize = 13.sp,
-                color = ElectricEmerald,
+                color = MaterialTheme.colorScheme.primary,
             )
         }
     }
@@ -462,7 +471,7 @@ fun ProjectImage(url: String, modifier: Modifier = Modifier) {
         modifier
             .fillMaxWidth()
             .aspectRatio(16f / 9f)
-            .border(MinimalTokens.BorderWidth, ElectricEmerald)
+            .border(MinimalTokens.BorderWidth, MaterialTheme.colorScheme.primary)
             .background(MaterialTheme.colorScheme.secondary),
         contentAlignment = Alignment.Center,
     ) {
@@ -488,7 +497,7 @@ fun ProjectImage(url: String, modifier: Modifier = Modifier) {
                 painterState is coil3.compose.AsyncImagePainter.State.Empty
         if (isLoading) {
             CircularProgressIndicator(
-                color = ElectricEmerald,
+                color = MaterialTheme.colorScheme.primary,
                 strokeWidth = 2.dp,
                 modifier = Modifier.size(36.dp),
             )

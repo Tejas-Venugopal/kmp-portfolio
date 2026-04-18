@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
  * using a unidirectional MVI loop:  Intent -> Reducer -> State.
  */
 class PortfolioViewModel(
-    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    internal val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 ) {
 
     private val _state = MutableStateFlow(PortfolioState())
