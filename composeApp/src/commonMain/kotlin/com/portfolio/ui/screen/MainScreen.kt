@@ -319,7 +319,7 @@ fun WorkSection(
 @Composable
 fun ContactSection() {
     val links = listOf(
-        "LinkedIn" to "https://www.linkedin.com/in/tejas-v-71b3aa23b?utm_source=share_via&utm_content=profile&utm_medium=member_ios",
+        "LinkedIn" to "https://www.linkedin.com/in/tejas-v-71b3aa23b/",
         "GitHub"   to "https://github.com/Tejas-Venugopal",
         "Email"    to "mailto:tejasvenugopal.official@example.com",
     )
