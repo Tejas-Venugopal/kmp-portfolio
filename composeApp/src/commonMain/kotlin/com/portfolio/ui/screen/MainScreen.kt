@@ -214,7 +214,7 @@ private fun ProfileBio(modifier: Modifier = Modifier) {
         )
         Spacer(Modifier.height(32.dp))
         OutlinedButton(
-            onClick = { openUrl("mailto:tejasvenugopal.offical@example.com") },
+            onClick = { openUrl("mailto:tejasvenugopal.offical@gmail.com") },
             border = BorderStroke(MinimalTokens.BorderWidth, MaterialTheme.colorScheme.primary),
             colors = ButtonDefaults.outlinedButtonColors(
                 containerColor = Color.Transparent,
@@ -321,7 +321,7 @@ fun ContactSection() {
     val links = listOf(
         "LinkedIn" to "https://www.linkedin.com/in/tejas-v-71b3aa23b/",
         "GitHub"   to "https://github.com/Tejas-Venugopal",
-        "Email"    to "mailto:tejasvenugopal.official@example.com",
+        "Email"    to "mailto:tejasvenugopal.official@gmail.com",
     )
     Column(
         Modifier
