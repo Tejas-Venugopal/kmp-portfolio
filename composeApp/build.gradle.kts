@@ -2,9 +2,12 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
+// On Netlify (and most CI systems) CI=true is set. Skip Android entirely in CI.
+val isCI = System.getenv("CI") == "true"
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    if (System.getenv("ANDROID_HOME") != null || System.getenv("ANDROID_SDK_ROOT") != null) {
+    if (!System.getenv("CI").equals("true")) {
         alias(libs.plugins.androidApplication)
     }
     alias(libs.plugins.composeMultiplatform)
@@ -13,7 +16,7 @@ plugins {
 
 kotlin {
     // ---------- Android ----------
-    if (System.getenv("ANDROID_HOME") != null || System.getenv("ANDROID_SDK_ROOT") != null) {
+    if (!isCI) {
         androidTarget {
             @OptIn(ExperimentalKotlinGradlePluginApi::class)
             compilerOptions {
@@ -72,7 +75,7 @@ kotlin {
         }
 
         androidMain.dependencies {
-            if (System.getenv("ANDROID_HOME") != null || System.getenv("ANDROID_SDK_ROOT") != null) {
+            if (!isCI) {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.core.ktx)
                 implementation(libs.ktor.client.okhttp)
@@ -89,7 +92,7 @@ kotlin {
     }
 }
 
-if (System.getenv("ANDROID_HOME") != null || System.getenv("ANDROID_SDK_ROOT") != null) {
+if (!isCI) {
     android {
         namespace = "com.portfolio"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -124,4 +127,3 @@ if (System.getenv("ANDROID_HOME") != null || System.getenv("ANDROID_SDK_ROOT") !
         }
     }
 }
-
