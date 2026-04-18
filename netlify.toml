@@ -6,7 +6,7 @@
 [build]
   # Shell command Netlify runs to produce the site.
   # Netlify CI runs on Ubuntu, so use ./gradlew (not gradlew.bat).
-  command = "./gradlew :composeApp:wasmJsBrowserDistribution"
+  command = "chmod +x ./gradlew && ./gradlew :composeApp:wasmJsBrowserDistribution"
 
   # Folder that contains the finished website after the build command finishes.
   publish = "composeApp/build/dist/wasmJs/productionExecutable"
