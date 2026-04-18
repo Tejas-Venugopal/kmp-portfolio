@@ -1,0 +1,45 @@
+[versions]
+# Toolchain
+kotlin = "2.0.21"
+agp = "8.5.2"
+compose-plugin = "1.7.0"
+
+# AndroidX
+androidx-activityCompose = "1.9.2"
+androidx-core = "1.13.1"
+
+# Coroutines / images
+kotlinx-coroutines = "1.9.0"
+coil = "3.0.4"
+ktor = "3.0.0"
+
+# Android SDK
+android-compileSdk = "34"
+android-minSdk = "24"
+android-targetSdk = "34"
+
+[libraries]
+# AndroidX
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+androidx-core-ktx         = { module = "androidx.core:core-ktx",             version.ref = "androidx-core" }
+
+# Coroutines
+kotlinx-coroutines-core   = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+
+# Coil 3 (KMP image loading)
+coil-compose              = { module = "io.coil-kt.coil3:coil-compose",        version.ref = "coil" }
+coil-network-ktor3        = { module = "io.coil-kt.coil3:coil-network-ktor3",  version.ref = "coil" }
+
+# Ktor engines (Coil network backend per-platform)
+ktor-client-core          = { module = "io.ktor:ktor-client-core",   version.ref = "ktor" }
+ktor-client-okhttp        = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin        = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-js            = { module = "io.ktor:ktor-client-js",     version.ref = "ktor" }
+
+[plugins]
+kotlinMultiplatform   = { id = "org.jetbrains.kotlin.multiplatform",  version.ref = "kotlin" }
+kotlinAndroid         = { id = "org.jetbrains.kotlin.android",        version.ref = "kotlin" }
+androidApplication    = { id = "com.android.application",             version.ref = "agp" }
+composeMultiplatform  = { id = "org.jetbrains.compose",               version.ref = "compose-plugin" }
+composeCompiler       = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+

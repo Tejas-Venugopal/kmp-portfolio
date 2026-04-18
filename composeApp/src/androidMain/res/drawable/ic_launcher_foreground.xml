@@ -1,0 +1,39 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!--
+        Foreground layer of the adaptive icon.
+        Safe-zone: the inner 72×72dp circle (18dp inset on each side).
+        Design: minimalist "T" monogram in Electric Emerald (#00FF88)
+        with two small accent brackets, echoing a code / KMP engineering theme.
+    -->
+
+    <!-- Horizontal top bar of T -->
+    <path
+        android:fillColor="#00FF88"
+        android:pathData="M30,28 L78,28 L78,35 L30,35 Z" />
+
+    <!-- Vertical stem of T -->
+    <path
+        android:fillColor="#00FF88"
+        android:pathData="M51,35 L57,35 L57,80 L51,80 Z" />
+
+    <!-- Accent: top-left corner bracket -->
+    <path
+        android:strokeColor="#00FF88"
+        android:strokeWidth="3"
+        android:fillColor="#00000000"
+        android:pathData="M36,22 L36,30 M36,22 L44,22" />
+
+    <!-- Accent: bottom-right corner bracket -->
+    <path
+        android:strokeColor="#00FF88"
+        android:strokeWidth="3"
+        android:fillColor="#00000000"
+        android:pathData="M72,86 L72,78 M72,86 L64,86" />
+
+</vector>
+

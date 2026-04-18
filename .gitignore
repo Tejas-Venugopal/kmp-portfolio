@@ -1,0 +1,66 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# .gitignore — KMP Portfolio (Kotlin Multiplatform + Gradle)
+# ──────────────────────────────────────────────────────────────────────────────
+
+# ── Gradle ────────────────────────────────────────────────────────────────────
+.gradle/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# ── Kotlin / IDE ──────────────────────────────────────────────────────────────
+.kotlin/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# ── Android ───────────────────────────────────────────────────────────────────
+local.properties
+*.keystore
+*.jks
+*.apk
+*.aab
+
+# ── IntelliJ / Android Studio ─────────────────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ── Windows ───────────────────────────────────────────────────────────────────
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ── Node / npm (used by Kotlin/Wasm webpack) ──────────────────────────────────
+node_modules/
+kotlin-js-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Netlify local dev ─────────────────────────────────────────────────────────
+.netlify/
+
+# ── Environment / secrets ─────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
