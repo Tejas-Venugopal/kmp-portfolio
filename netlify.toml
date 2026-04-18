@@ -6,18 +6,16 @@
 [build]
   # Shell command Netlify runs to produce the site.
   # Netlify CI runs on Ubuntu, so use ./gradlew (not gradlew.bat).
-  command = "chmod +x ./gradlew && ./gradlew :composeApp:wasmJsBrowserDistribution --stacktrace"
+  command = "chmod +x ./gradlew && ./gradlew :composeApp:wasmJsBrowserDistribution"
 
   # Folder that contains the finished website after the build command finishes.
   publish = "composeApp/build/dist/wasmJs/productionExecutable"
 
 [build.environment]
-  # Java 17 is pre-installed on Netlify's Ubuntu image.
-  # Tell Gradle to store its cache inside the repo's own .gradle dir so
-  # Netlify's build cache can persist it between deploys → faster rebuilds.
+  # Force Java 17 — Netlify now defaults to Java 25, which Kotlin 2.0.x cannot parse.
+  JAVA_VERSION      = "17"
   GRADLE_USER_HOME   = "/opt/buildhome/.gradle"
   GRADLE_OPTS        = "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Xmx4g"
-  # Suppress the "iOS targets can't build on this machine" warning.
   KOTLIN_NATIVE_IGNORE_DISABLED_TARGETS = "true"
 
 # ── Cache the Gradle wrapper + dependency cache between builds ─────────────────
