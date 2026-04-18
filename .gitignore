@@ -12,6 +12,8 @@ build/
 # ── Kotlin / IDE ──────────────────────────────────────────────────────────────
 .kotlin/
 *.class
+# The gradle-wrapper.jar MUST be committed — it is the CI/Netlify bootstrap
+!gradle/wrapper/gradle-wrapper.jar
 *.jar
 *.war
 *.nar
