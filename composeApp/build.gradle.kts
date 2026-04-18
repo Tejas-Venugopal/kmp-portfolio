@@ -1,17 +1,20 @@
+import com.android.build.gradle.AppExtension
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
-// On Netlify (and most CI systems) CI=true is set. Skip Android entirely in CI.
+// CI=true is set by Netlify, GitHub Actions, etc. Not set on local dev machines.
 val isCI = System.getenv("CI") == "true"
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    if (!System.getenv("CI").equals("true")) {
-        alias(libs.plugins.androidApplication)
-    }
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    // Android plugin applied imperatively below so it can be skipped in CI
+}
+
+if (!isCI) {
+    apply(plugin = "com.android.application")
 }
 
 kotlin {
@@ -40,7 +43,7 @@ kotlin {
     // ---------- Web (Wasm) ----------
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "composeApp" // produces composeApp.js — must match index.html <script src>
+        moduleName = "composeApp"
         browser {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
@@ -74,8 +77,8 @@ kotlin {
             implementation(libs.ktor.client.core)
         }
 
-        androidMain.dependencies {
-            if (!isCI) {
+        if (!isCI) {
+            androidMain.dependencies {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.core.ktx)
                 implementation(libs.ktor.client.okhttp)
@@ -93,9 +96,9 @@ kotlin {
 }
 
 if (!isCI) {
-    android {
+    configure<AppExtension> {
         namespace = "com.portfolio"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        compileSdkVersion(libs.versions.android.compileSdk.get().toInt())
 
         defaultConfig {
             applicationId = "com.portfolio"
@@ -110,14 +113,10 @@ if (!isCI) {
             targetCompatibility = JavaVersion.VERSION_17
         }
 
-        buildFeatures {
-            compose = true
-        }
+        buildFeatures.compose = true
 
-        packaging {
-            resources {
-                excludes += "/META-INF/{AL2.0,LGPL2.1}"
-            }
+        packagingOptions {
+            resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
 
         buildTypes {
