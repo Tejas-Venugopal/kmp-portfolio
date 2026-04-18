@@ -24,11 +24,8 @@
 [build.processing]
   skip_processing = false
 
-[[plugins]]
-  package = "@netlify/plugin-caching"
-
-  [plugins.inputs]
-    paths = ["/opt/buildhome/.gradle/wrapper", "/opt/buildhome/.gradle/caches"]
+[cache]
+  paths = ["/opt/buildhome/.gradle/wrapper", "/opt/buildhome/.gradle/caches"]
 
 # ── HTTP headers ──────────────────────────────────────────────────────────────
 # Browsers require application/wasm for WebAssembly files.
