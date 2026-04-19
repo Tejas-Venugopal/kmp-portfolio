@@ -4,17 +4,23 @@
 # ──────────────────────────────────────────────────────────────────────────────
 
 [build]
-  # Netlify CI runs on Ubuntu. JAVA_VERSION below tells Netlify to activate
-  # the right JDK from its own toolchain — no manual curl/tar needed.
-  command = "chmod +x ./gradlew && ./gradlew :composeApp:wasmJsBrowserDistribution"
+  # Netlify's current build image defaults to Java 25 which Kotlin 2.0.x rejects.
+  # JAVA_VERSION env var is not reliably honoured, so we install JDK 21 manually.
+  # Using a PINNED direct GitHub release URL (far more stable than api.adoptium.net).
+  command = """mkdir -p /tmp/jdk21 && \
+curl -fsSL 'https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.6%2B7/OpenJDK21U-jdk_x64_linux_hotspot_21.0.6_7.tar.gz' \
+     -o /tmp/jdk21.tar.gz && \
+tar -xzf /tmp/jdk21.tar.gz -C /tmp/jdk21 --strip-components=1 && \
+export JAVA_HOME=/tmp/jdk21 && \
+export PATH=$JAVA_HOME/bin:$PATH && \
+java -version && \
+chmod +x ./gradlew && \
+./gradlew :composeApp:wasmJsBrowserDistribution"""
 
   # Folder that contains the finished website after the build command finishes.
   publish = "composeApp/build/dist/wasmJs/productionExecutable"
 
 [build.environment]
-  # Netlify's build image ships Java 17 and 21 natively.
-  # Setting JAVA_VERSION activates the correct one without any manual download.
-  JAVA_VERSION      = "21"
   GRADLE_USER_HOME  = "/opt/buildhome/.gradle"
   GRADLE_OPTS       = "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.jvmargs=-Xmx4g"
   KOTLIN_NATIVE_IGNORE_DISABLED_TARGETS = "true"
@@ -24,7 +30,7 @@
   skip_processing = false
 
 [cache]
-  paths = ["/opt/buildhome/.gradle/wrapper", "/opt/buildhome/.gradle/caches"]
+  paths = ["/opt/buildhome/.gradle/wrapper", "/opt/buildhome/.gradle/caches", "/tmp/jdk21"]
 
 # ── HTTP headers ──────────────────────────────────────────────────────────────
 # Browsers require application/wasm for WebAssembly files.
