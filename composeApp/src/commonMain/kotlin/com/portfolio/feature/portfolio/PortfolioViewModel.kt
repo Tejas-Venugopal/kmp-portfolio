@@ -64,12 +64,13 @@ class PortfolioViewModel(
     private fun sampleProjects(): List<Project> = listOf(
         Project(
             id = "welldoc",
-            title = "Welldoc — Healthcare Android App",
+            title = "Welldoc — Lilly Health",
             description = "Production Android healthcare app for diabetes management " +
-                "serving Eli Lilly patients (Lilly Health). Led migration of core module " +
-                "from Java/MVP to Kotlin + Jetpack Compose with MVI architecture and " +
-                "StateFlow.\n\nCompany: Welldoc Software Pvt Ltd (2023 - Present).",
-            tools = listOf("Kotlin", "Jetpack Compose", "MVI", "StateFlow", "Hilt"),
+                "built for Eli Lilly patients (Lilly Health) at Welldoc . Owned "+
+                "and drove migration of core module from Java/MVP to Kotlin + Jetpack " +
+                "Compose with StateBridge/MVVM architecture and StateFlow . " +
+                "Contributing to live releases serving real patients (2023 - Present).",
+            tools = listOf("Kotlin", "Jetpack Compose", "StateBridge/MVVM", "StateFlow"),
             githubUrl = "",
             imageUrl = null,
         ),

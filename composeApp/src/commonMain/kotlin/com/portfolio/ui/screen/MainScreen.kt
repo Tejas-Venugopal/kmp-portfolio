@@ -46,6 +46,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.runtime.collectAsState
@@ -57,7 +60,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -194,8 +201,8 @@ fun ProfileSection() {
                     .drawBehind {
                         drawLine(
                             color = emerald,
-                            start = androidx.compose.ui.geometry.Offset(0f, size.height - borderPx / 2),
-                            end   = androidx.compose.ui.geometry.Offset(size.width, size.height - borderPx / 2),
+                            start = Offset(0f, size.height - borderPx / 2),
+                            end   = Offset(size.width, size.height - borderPx / 2),
                             strokeWidth = borderPx,
                         )
                     },
@@ -452,73 +459,130 @@ private fun ContactLink(label: String, url: String) {
 
 @Composable
 private fun ProjectCard(project: Project, onClick: () -> Unit) {
-    Card(
-        onClick = onClick,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.onBackground,
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = MinimalTokens.Elevation,
-            pressedElevation = MinimalTokens.Elevation,
-            hoveredElevation = MinimalTokens.Elevation,
-            focusedElevation = MinimalTokens.Elevation,
-        ),
-        border = BorderStroke(MinimalTokens.BorderWidth, MaterialTheme.colorScheme.primary),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(Modifier.padding(24.dp).fillMaxHeight()) {
-            project.imageUrl?.let { url ->
-                ProjectImage(url = url)
-                Spacer(Modifier.height(16.dp))
-            }
-            Text(
-                text = project.title,
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Spacer(Modifier.height(12.dp))
-            // Render description; bold any segment that starts with "Company:"
-            val descriptionText = buildAnnotatedString {
-                val boldLabel = "Company:"
-                val text = project.description
-                val idx = text.indexOf(boldLabel)
-                if (idx == -1) {
-                    append(text)
-                } else {
-                    append(text.substring(0, idx))
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(boldLabel)
-                    }
-                    append(text.substring(idx + boldLabel.length))
-                }
-            }
-            Text(
-                text = descriptionText,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
-            )
-            // Absorbs any extra height (e.g. in equal-height grid rows) above the chips
-            Spacer(Modifier.height(20.dp))
-            Spacer(Modifier.weight(1f))
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                project.tools.forEach { tool ->
-                    Box(
-                        Modifier
-                            .background(MaterialTheme.colorScheme.secondary)
-                            .padding(horizontal = 10.dp, vertical = 6.dp),
-                    ) {
-                        Text(
-                            tool,
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.primary,
+    val isClickable = project.githubUrl.isNotEmpty()
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered  by interactionSource.collectIsHoveredAsState()
+    val isPressed  by interactionSource.collectIsPressedAsState()
+
+    // Scale up smoothly on hover (web mouse-over), depress on tap
+    val scale by animateFloatAsState(
+        targetValue = when {
+            isPressed                -> 0.96f
+            isHovered && isClickable -> 1.05f
+            else                     -> 1.00f
+        },
+        animationSpec = tween(durationMillis = 150),
+        label = "cardScale",
+    )
+
+    val emerald = MaterialTheme.colorScheme.primary
+    val cardElevation = if (isClickable) 16.dp else MinimalTokens.Elevation
+
+    // Wrap in a Box that has padding so the glow can spread outside the card bounds
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer { scaleX = scale; scaleY = scale }
+            // Glow drawn in the padding area around the card
+            .padding(if (isClickable) 18.dp else 0.dp)
+            .drawBehind {
+                if (isClickable) {
+                    val glowAlpha = if (isHovered) 0.85f else 0.40f
+                    // Four concentric layers → strong emerald bloom
+                    listOf(
+                        Pair(28f, glowAlpha * 0.15f),
+                        Pair(18f, glowAlpha * 0.35f),
+                        Pair(10f, glowAlpha * 0.65f),
+                        Pair(4f,  glowAlpha),
+                    ).forEach { (spread, alpha) ->
+                        drawRoundRect(
+                            color        = emerald.copy(alpha = alpha),
+                            topLeft      = Offset(-spread, -spread),
+                            size         = Size(size.width + spread * 2, size.height + spread * 2),
+                            cornerRadius = CornerRadius(14f + spread),
                         )
                     }
+                }
+            },
+    ) {
+        Card(
+            onClick = onClick,
+            interactionSource = interactionSource,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.onBackground,
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = cardElevation,
+                pressedElevation = if (isClickable) 6.dp  else MinimalTokens.Elevation,
+                hoveredElevation = if (isClickable) 24.dp else MinimalTokens.Elevation,
+                focusedElevation = cardElevation,
+            ),
+            border = BorderStroke(
+                width = if (isHovered && isClickable) 2.dp else MinimalTokens.BorderWidth,
+                color = if (isHovered && isClickable) emerald else emerald.copy(alpha = 0.7f),
+            ),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(Modifier.padding(24.dp).fillMaxHeight()) {
+                project.imageUrl?.let { url ->
+                    ProjectImage(url = url)
+                    Spacer(Modifier.height(16.dp))
+                }
+                Text(
+                    text = project.title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+                Spacer(Modifier.height(12.dp))
+                val descriptionText = buildAnnotatedString {
+                    val boldLabel = "Company:"
+                    val text = project.description
+                    val idx = text.indexOf(boldLabel)
+                    if (idx == -1) {
+                        append(text)
+                    } else {
+                        append(text.substring(0, idx))
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(boldLabel) }
+                        append(text.substring(idx + boldLabel.length))
+                    }
+                }
+                Text(
+                    text = descriptionText,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                )
+                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.weight(1f))
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement   = Arrangement.spacedBy(8.dp),
+                ) {
+                    project.tools.forEach { tool ->
+                        Box(
+                            Modifier
+                                .background(MaterialTheme.colorScheme.secondary)
+                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                        ) {
+                            Text(
+                                tool,
+                                fontFamily = FontFamily.Monospace,
+                                fontSize   = 12.sp,
+                                color      = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+                }
+                if (isClickable) {
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        text       = "↗  View on GitHub",
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Medium,
+                        fontSize   = 12.sp,
+                        color      = MaterialTheme.colorScheme.primary,
+                    )
                 }
             }
         }
