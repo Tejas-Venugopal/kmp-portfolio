@@ -3,7 +3,10 @@ package com.portfolio.platform
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
@@ -67,6 +70,10 @@ actual fun AnimatedBanner(
         onDispose { imgEl.remove() }
     }
 
+    // The first positive top value equals the navbar height in CSS px.
+    // We use it as a hard ceiling so the banner never overlaps the navbar.
+    var minTop by remember { mutableStateOf(-1) }
+
     // ── Invisible Spacer holds the layout space; syncs <img> position ────────
     Spacer(
         modifier = modifier
@@ -78,15 +85,32 @@ actual fun AnimatedBanner(
                 val width  = (size.width  / density).toInt()
                 val height = (size.height / density).toInt()
 
-                if (top + height <= 0) {
-                    // Scrolled fully off the top — hide so it doesn't bleed
-                    imgEl.style.display = "none"
-                } else {
-                    imgEl.style.left    = "${left}px"
-                    imgEl.style.top     = "${top}px"
-                    imgEl.style.width   = "${width}px"
-                    imgEl.style.height  = "${height}px"
-                    imgEl.style.display = "block"
+                // Capture the initial top (= navbar height) on the first valid layout
+                if (minTop == -1 && top > 0) minTop = top
+
+                val clampedMinTop = if (minTop > 0) minTop else 0
+                // How many CSS px of the img are hidden above the clamp line
+                val clipTopPx = maxOf(0, clampedMinTop - top)
+                val visibleHeight = height - clipTopPx
+
+                when {
+                    // Fully scrolled behind / above the navbar → hide
+                    visibleHeight <= 0 || top + height <= 0 -> {
+                        imgEl.style.display = "none"
+                    }
+                    else -> {
+                        imgEl.style.left     = "${left}px"
+                        // Never let the img sit above the navbar
+                        imgEl.style.top      = "${maxOf(clampedMinTop, top)}px"
+                        imgEl.style.width    = "${width}px"
+                        imgEl.style.height   = "${height}px"
+                        // Clip the portion that has scrolled behind the navbar
+                        imgEl.style.clipPath = if (clipTopPx > 0)
+                            "inset(${clipTopPx}px 0 0 0)"
+                        else
+                            "none"
+                        imgEl.style.display  = "block"
+                    }
                 }
             },
     )
