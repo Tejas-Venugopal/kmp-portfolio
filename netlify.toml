@@ -4,18 +4,19 @@
 # ──────────────────────────────────────────────────────────────────────────────
 
 [build]
-  # Shell command Netlify runs to produce the site.
-  # Netlify CI runs on Ubuntu, so use ./gradlew (not gradlew.bat).
-  command = "curl -fsSL 'https://api.adoptium.net/v3/binary/latest/21/ga/linux/x64/jdk/hotspot/normal/eclipse' -o /tmp/jdk21.tar.gz && mkdir -p /tmp/jdk21 && tar -xzf /tmp/jdk21.tar.gz -C /tmp/jdk21 --strip-components=1 && export JAVA_HOME=/tmp/jdk21 && export PATH=$JAVA_HOME/bin:$PATH && java -version && chmod +x ./gradlew && ./gradlew :composeApp:wasmJsBrowserDistribution"
+  # Netlify CI runs on Ubuntu. JAVA_VERSION below tells Netlify to activate
+  # the right JDK from its own toolchain — no manual curl/tar needed.
+  command = "chmod +x ./gradlew && ./gradlew :composeApp:wasmJsBrowserDistribution"
 
   # Folder that contains the finished website after the build command finishes.
   publish = "composeApp/build/dist/wasmJs/productionExecutable"
 
 [build.environment]
-  # Force Java 17 — Netlify now defaults to Java 25, which Kotlin 2.0.x cannot parse.
-  JAVA_VERSION      = "17"
-  GRADLE_USER_HOME   = "/opt/buildhome/.gradle"
-  GRADLE_OPTS        = "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Xmx4g"
+  # Netlify's build image ships Java 17 and 21 natively.
+  # Setting JAVA_VERSION activates the correct one without any manual download.
+  JAVA_VERSION      = "21"
+  GRADLE_USER_HOME  = "/opt/buildhome/.gradle"
+  GRADLE_OPTS       = "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.jvmargs=-Xmx4g"
   KOTLIN_NATIVE_IGNORE_DISABLED_TARGETS = "true"
 
 # ── Cache the Gradle wrapper + dependency cache between builds ─────────────────
@@ -23,7 +24,7 @@
   skip_processing = false
 
 [cache]
-  paths = ["/opt/buildhome/.gradle/wrapper", "/opt/buildhome/.gradle/caches", "/tmp/jdk21"]
+  paths = ["/opt/buildhome/.gradle/wrapper", "/opt/buildhome/.gradle/caches"]
 
 # ── HTTP headers ──────────────────────────────────────────────────────────────
 # Browsers require application/wasm for WebAssembly files.
