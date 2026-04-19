@@ -85,6 +85,7 @@ kotlin {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.core.ktx)
                 implementation(libs.ktor.client.okhttp)
+                implementation(libs.coil.gif)          // animated GIF decoder
             }
         }
 

@@ -29,6 +29,7 @@ kotlinx-coroutines-core   = { module = "org.jetbrains.kotlinx:kotlinx-coroutines
 # Coil 3 (KMP image loading)
 coil-compose              = { module = "io.coil-kt.coil3:coil-compose",        version.ref = "coil" }
 coil-network-ktor3        = { module = "io.coil-kt.coil3:coil-network-ktor3",  version.ref = "coil" }
+coil-gif                  = { module = "io.coil-kt.coil3:coil-gif",            version.ref = "coil" }
 
 # Ktor engines (Coil network backend per-platform)
 ktor-client-core          = { module = "io.ktor:ktor-client-core",   version.ref = "ktor" }
