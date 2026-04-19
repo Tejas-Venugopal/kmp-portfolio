@@ -105,10 +105,10 @@ actual fun AnimatedBanner(
                         imgEl.style.width    = "${width}px"
                         imgEl.style.height   = "${height}px"
                         // Clip the portion that has scrolled behind the navbar
-                        imgEl.style.clipPath = if (clipTopPx > 0)
-                            "inset(${clipTopPx}px 0 0 0)"
+                        if (clipTopPx > 0)
+                            imgEl.style.setProperty("clip-path", "inset(${clipTopPx}px 0 0 0)")
                         else
-                            "none"
+                            imgEl.style.removeProperty("clip-path")
                         imgEl.style.display  = "block"
                     }
                 }

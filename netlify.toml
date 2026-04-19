@@ -15,7 +15,7 @@ export JAVA_HOME=/tmp/jdk21 && \
 export PATH=$JAVA_HOME/bin:$PATH && \
 java -version && \
 chmod +x ./gradlew && \
-./gradlew :composeApp:wasmJsBrowserDistribution --stacktrace"""
+./gradlew :composeApp:wasmJsBrowserDistribution"""
 
   # Folder that contains the finished website after the build command finishes.
   publish = "composeApp/build/dist/wasmJs/productionExecutable"
