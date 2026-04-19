@@ -15,14 +15,16 @@ export JAVA_HOME=/tmp/jdk21 && \
 export PATH=$JAVA_HOME/bin:$PATH && \
 java -version && \
 chmod +x ./gradlew && \
-./gradlew :composeApp:wasmJsBrowserDistribution"""
+./gradlew :composeApp:wasmJsBrowserDistribution --stacktrace"""
 
   # Folder that contains the finished website after the build command finishes.
   publish = "composeApp/build/dist/wasmJs/productionExecutable"
 
 [build.environment]
   GRADLE_USER_HOME  = "/opt/buildhome/.gradle"
-  GRADLE_OPTS       = "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.jvmargs=-Xmx4g"
+  # -Xmx3g sets the heap for the Gradle JVM process itself (daemon is off so
+  # org.gradle.jvmargs has no effect — the direct flag is what matters).
+  GRADLE_OPTS       = "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Xmx3g"
   KOTLIN_NATIVE_IGNORE_DISABLED_TARGETS = "true"
 
 # ── Cache the Gradle wrapper + dependency cache between builds ─────────────────
