@@ -178,43 +178,27 @@ fun ProfileSection() {
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
     ) {
-        // ── Banner ───────────────────────────────────────────────────────────
-        val emerald  = MaterialTheme.colorScheme.primary
-        val borderPx = with(androidx.compose.ui.platform.LocalDensity.current) {
-            MinimalTokens.BorderWidth.toPx()
+        // ── Banner with avatar sitting on top at bottom-start ────────────────
+        Box(Modifier.fillMaxWidth().height(120.dp + avatarSize / 2)) {
+            AnimatedBanner(
+                url = "https://1.bp.blogspot.com/-7A4WynwLsMw/XbBpCXG8fHI/AAAAAAAAMt4/uOa1bpLskYgrwGbllhSu2SDj_Mig8SXJQCLcBGAsYHQ/s1600/2000_600px.gif",
+                contentDescription = "Profile banner",
+                modifier = Modifier.fillMaxWidth().height(120.dp).align(Alignment.TopStart),
+            )
+            AvatarImage(
+                url = "https://avatars.githubusercontent.com/Tejas-Venugopal",
+                contentDescription = "Profile picture",
+                modifier = Modifier
+                    .padding(start = 32.dp)
+                    .size(avatarSize)
+                    .align(Alignment.BottomStart),
+            )
         }
-        AnimatedBanner(
-            url = "https://1.bp.blogspot.com/-7A4WynwLsMw/XbBpCXG8fHI/AAAAAAAAMt4/uOa1bpLskYgrwGbllhSu2SDj_Mig8SXJQCLcBGAsYHQ/s1600/2000_600px.gif",
-            contentDescription = "Profile banner",
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .drawBehind {
-                    drawLine(
-                        color = emerald,
-                        start = Offset(0f, size.height - borderPx / 2),
-                        end   = Offset(size.width, size.height - borderPx / 2),
-                        strokeWidth = borderPx,
-                    )
-                },
-        )
-
-        // ── Avatar — clearly below the banner with 16dp gap ──────────────────
-        Spacer(Modifier.height(16.dp))
-        AvatarImage(
-            url = "https://avatars.githubusercontent.com/Tejas-Venugopal",
-            contentDescription = "Profile picture",
-            modifier = Modifier
-                .padding(start = 32.dp)
-                .size(avatarSize),
-        )
 
         // ── Bio + Stats ─────────────────────────────────────────────────────
         BoxWithConstraints(
             Modifier
                 .fillMaxWidth()
-                // Top padding = small gap below the avatar (no need to re-add avatarOverlap,
-                // the Box already reserved that space)
                 .padding(horizontal = 32.dp)
                 .padding(top = 16.dp, bottom = 40.dp),
         ) {
