@@ -63,15 +63,15 @@ class PortfolioViewModel(
 
     private fun sampleProjects(): List<Project> = listOf(
         Project(
-            id = "vault-fintech",
-            title = "Vault — Encrypted Fintech App",
-            description = "Production Android banking client serving 120K+ MAU. " +
-                "Strict MVI core with unidirectional state, AES-256 (Tink) at-rest encryption, " +
-                "biometric-gated sessions, and a fully offline-first transaction ledger. " +
-                "Reduced p95 cold-start by 38% and crash-free sessions to 99.94%.",
-            tools = listOf("Kotlin", "MVI", "Jetpack Compose", "Tink", "Hilt", "Room"),
-            githubUrl = "https://github.com/example/vault-fintech",
-            imageUrl = "https://images.unsplash.com/photo-1556742400-b5b7c5121f2e?w=1280&q=80",
+            id = "welldoc",
+            title = "Welldoc — Healthcare Android App",
+            description = "Production Android healthcare app for diabetes management " +
+                "serving Eli Lilly patients (Lilly Health). Led migration of core module " +
+                "from Java/MVP to Kotlin + Jetpack Compose with MVI architecture and " +
+                "StateFlow. Company: Welldoc Software Pvt Ltd (2023 - Present).",
+            tools = listOf("Kotlin", "Jetpack Compose", "MVI", "StateFlow", "Hilt"),
+            githubUrl = "",
+            imageUrl = null,
         ),
         Project(
             id = "kmp-portfolio",
@@ -81,18 +81,19 @@ class PortfolioViewModel(
                 "Sub-300KB gzipped Wasm payload, 0dp-elevation design system, and a strict " +
                 "MVI feature module reused across all three targets.",
             tools = listOf("Kotlin", "Compose", "Wasm", "MVI", "Coil 3"),
-            githubUrl = "https://github.com/example/kmp-portfolio",
-            imageUrl = "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1280&q=80",
+            githubUrl = "https://github.com/Tejas-Venugopal/kmp-portfolio",
+            imageUrl = null,
         ),
         Project(
-            id = "flowgrid-oss",
-            title = "FlowGrid — Open-Source Reactive Grid",
-            description = "OSS Compose Multiplatform virtualised grid handling 1M+ cells at 120fps " +
-                "via incremental layout and StateFlow-driven diffing. Shipped as a KMP library " +
-                "with zero reflection, used in 30+ production apps. Featured in Android Weekly #612.",
-            tools = listOf("Kotlin", "Compose", "Coroutines", "KMP", "Library"),
-            githubUrl = "https://github.com/example/flowgrid",
-            imageUrl = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1280&q=80",
+            id = "resume-parser",
+            title = "Resume Parser Using NLP",
+            description = "Award-winning internship project at VCNR Technologies. " +
+                "Python + NLP based resume parsing and analysis system. Recognised " +
+                "at 5th National Conference (NCVCS-2023) and Innovate2K23 " +
+                "Prototype Project Exhibition.",
+            tools = listOf("Python", "NLP", "Machine Learning", "AI"),
+            githubUrl = "https://github.com/Tejas-Venugopal/Resume-parser-using-NLP",
+            imageUrl = null,
         ),
     )
 }

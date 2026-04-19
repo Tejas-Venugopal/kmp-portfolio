@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalLayoutApi::class)
+
 package com.portfolio.ui.screen
 
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -41,6 +46,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
@@ -63,8 +71,8 @@ import com.portfolio.feature.portfolio.PortfolioIntent
 import com.portfolio.feature.portfolio.PortfolioState
 import com.portfolio.feature.portfolio.PortfolioViewModel
 import com.portfolio.feature.portfolio.Project
+import com.portfolio.platform.AnimatedBanner
 import com.portfolio.platform.openUrl
-import com.portfolio.ui.theme.ElectricEmerald
 import com.portfolio.ui.theme.MinimalTokens
 
 // ─── Nav destinations ─────────────────────────────────────────────────────────
@@ -152,25 +160,85 @@ private fun StickyNavBar(selected: NavTab, onSelect: (NavTab) -> Unit) {
 
 @Composable
 fun ProfileSection() {
-    BoxWithConstraints(
+    // Avatar metrics — used to calculate the overlap offset
+    val avatarSize   = 120.dp
+    val avatarOverlap = avatarSize / 2   // 60dp hangs below the banner
+
+    Column(
         Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 32.dp, vertical = 40.dp),
+            .verticalScroll(rememberScrollState()),
     ) {
-        val isDesktop = maxWidth >= 800.dp
-        if (isDesktop) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(48.dp),
-                verticalAlignment = Alignment.Top,
-            ) {
-                ProfileBio(Modifier.weight(1f))
-                StatsWidget(Modifier.width(320.dp))
-            }
-        } else {
-            Column(verticalArrangement = Arrangement.spacedBy(40.dp)) {
-                ProfileBio(Modifier.fillMaxWidth())
-                StatsWidget(Modifier.fillMaxWidth())
+        // ── Banner + overlapping avatar ──────────────────────────────────────
+        val emerald   = MaterialTheme.colorScheme.primary
+        val borderPx  = with(androidx.compose.ui.platform.LocalDensity.current) {
+            MinimalTokens.BorderWidth.toPx()
+        }
+        Box(
+            Modifier
+                .fillMaxWidth()
+                // Reserve banner height PLUS the half-avatar that hangs below
+                .height(120.dp + avatarOverlap),
+        ) {
+            // Banner
+            AnimatedBanner(
+                url = "https://1.bp.blogspot.com/-7A4WynwLsMw/XbBpCXG8fHI/AAAAAAAAMt4/uOa1bpLskYgrwGbllhSu2SDj_Mig8SXJQCLcBGAsYHQ/s1600/2000_600px.gif",
+                contentDescription = "Profile banner",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .align(Alignment.TopStart)
+                    .drawBehind {
+                        drawLine(
+                            color = emerald,
+                            start = androidx.compose.ui.geometry.Offset(0f, size.height - borderPx / 2),
+                            end   = androidx.compose.ui.geometry.Offset(size.width, size.height - borderPx / 2),
+                            strokeWidth = borderPx,
+                        )
+                    },
+            )
+
+            // Profile picture — overlaps banner by avatarOverlap (60dp)
+            AsyncImage(
+                model = ImageRequest.Builder(LocalPlatformContext.current)
+                    .data("https://avatars.githubusercontent.com/Tejas-Venugopal")
+                    .crossfade(true)
+                    .crossfade(durationMillis = 400)
+                    .build(),
+                contentDescription = "Profile picture",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .padding(start = 32.dp)
+                    .size(avatarSize)
+                    .align(Alignment.BottomStart)
+                    .clip(CircleShape)
+                    .border(MinimalTokens.BorderWidth, emerald, CircleShape),
+            )
+        }
+
+        // ── Bio + Stats ─────────────────────────────────────────────────────
+        BoxWithConstraints(
+            Modifier
+                .fillMaxWidth()
+                // Top padding = small gap below the avatar (no need to re-add avatarOverlap,
+                // the Box already reserved that space)
+                .padding(horizontal = 32.dp)
+                .padding(top = 16.dp, bottom = 40.dp),
+        ) {
+            val isDesktop = maxWidth >= 800.dp
+            if (isDesktop) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(48.dp),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    ProfileBio(Modifier.weight(1f))
+                    StatsWidget(Modifier.width(320.dp))
+                }
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(40.dp)) {
+                    ProfileBio(Modifier.fillMaxWidth())
+                    StatsWidget(Modifier.fillMaxWidth())
+                }
             }
         }
     }
@@ -179,21 +247,6 @@ fun ProfileSection() {
 @Composable
 private fun ProfileBio(modifier: Modifier = Modifier) {
     Column(modifier) {
-        // Profile picture — circular editorial cutout
-        AsyncImage(
-            model = ImageRequest.Builder(LocalPlatformContext.current)
-                .data("https://avatars.githubusercontent.com/u/583231") // replace with your own
-                .crossfade(true)
-                .crossfade(durationMillis = 400)
-                .build(),
-            contentDescription = "Profile picture",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .border(MinimalTokens.BorderWidth, MaterialTheme.colorScheme.primary, CircleShape),
-        )
-        Spacer(Modifier.height(28.dp))
         Text(
             text = "Hey, I'm Tejas.\nA KMP & Android Engineer.",
             color = MaterialTheme.colorScheme.onBackground,
@@ -214,7 +267,7 @@ private fun ProfileBio(modifier: Modifier = Modifier) {
         )
         Spacer(Modifier.height(32.dp))
         OutlinedButton(
-            onClick = { openUrl("mailto:tejasvenugopal.offical@gmail.com") },
+            onClick = { openUrl("mailto:tejasvenugopal.official@gmail.com") },
             border = BorderStroke(MinimalTokens.BorderWidth, MaterialTheme.colorScheme.primary),
             colors = ButtonDefaults.outlinedButtonColors(
                 containerColor = Color.Transparent,
@@ -234,10 +287,10 @@ private fun ProfileBio(modifier: Modifier = Modifier) {
 @Composable
 private fun StatsWidget(modifier: Modifier = Modifier) {
     val stats = listOf(
-        "3+"     to "Years Exp",
-        "15+"    to "Projects",
-        "100%"   to "KMP Focus",
-        "120fps" to "Target Perf",
+        "3+"    to "Years Exp",
+        "5+"   to "Projects",
+        "100%"  to "MVI",
+        "2.0"   to "Kotlin Ver",
     )
     Column(
         modifier
@@ -307,7 +360,7 @@ fun WorkSection(
                 project = project,
                 onClick = {
                     onIntent(PortfolioIntent.OpenProject(project))
-                    openUrl(project.githubUrl)
+                    if (project.githubUrl.isNotEmpty()) openUrl(project.githubUrl)
                 },
             )
         }
@@ -338,9 +391,8 @@ fun ContactSection() {
         )
         Spacer(Modifier.height(20.dp))
         Text(
-            text = "I'm actively open to new Android & KMP engineering roles — full-time or contract. " +
-                    "Whether it's a startup moving fast or a team tackling hard architectural problems, " +
-                    "I'd love to hear about it.",
+            text = "Having an interesting Android or KMP project" +
+                    " I'd love to hear about it.",
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f),
             fontFamily = FontFamily.Monospace,
             fontSize = 15.sp,
@@ -353,12 +405,20 @@ fun ContactSection() {
                 ContactLink(label = label, url = url)
             }
         }
+        Spacer(Modifier.height(16.dp))
+        Row {
+            ContactLink(
+                label = "Download Resume",
+                url = "https://drive.google.com/file/d/13FAq2jSo2JgCIryaPvWrlqCEBfLzJEyj/view?usp=drive_link",
+            )
+        }
     }
 }
 
 @Composable
 private fun ContactLink(label: String, url: String) {
-    var pressed by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
     Box(
         Modifier
             .border(
@@ -367,6 +427,8 @@ private fun ContactLink(label: String, url: String) {
             )
             .background(Color.Transparent)
             .clickable(
+                interactionSource = interactionSource,
+                indication = null,
                 onClick = { openUrl(url) },
                 onClickLabel = label,
             )
@@ -402,7 +464,7 @@ private fun ProjectCard(project: Project, onClick: () -> Unit) {
         border = BorderStroke(MinimalTokens.BorderWidth, MaterialTheme.colorScheme.primary),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Column(Modifier.padding(24.dp)) {
+        Column(Modifier.padding(24.dp).fillMaxHeight()) {
             project.imageUrl?.let { url ->
                 ProjectImage(url = url)
                 Spacer(Modifier.height(16.dp))
@@ -419,8 +481,13 @@ private fun ProjectCard(project: Project, onClick: () -> Unit) {
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
             )
+            // Absorbs any extra height (e.g. in equal-height grid rows) above the chips
             Spacer(Modifier.height(20.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Spacer(Modifier.weight(1f))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 project.tools.forEach { tool ->
                     Box(
                         Modifier
@@ -482,12 +549,8 @@ fun ProjectImage(url: String, modifier: Modifier = Modifier) {
                 .crossfade(durationMillis = 350)
                 .build(),
         )
-        AsyncImage(
-            model = ImageRequest.Builder(LocalPlatformContext.current)
-                .data(url)
-                .crossfade(true)
-                .crossfade(durationMillis = 350)
-                .build(),
+        androidx.compose.foundation.Image(
+            painter = painter,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
