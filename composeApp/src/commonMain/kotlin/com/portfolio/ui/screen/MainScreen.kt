@@ -171,56 +171,43 @@ private fun StickyNavBar(selected: NavTab, onSelect: (NavTab) -> Unit) {
 
 @Composable
 fun ProfileSection() {
-    // Avatar metrics — used to calculate the overlap offset
-    val avatarSize   = 120.dp
-    val avatarOverlap = avatarSize / 2   // 60dp hangs below the banner
+    val avatarSize = 150.dp
 
     Column(
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
     ) {
-        // ── Banner + overlapping avatar ──────────────────────────────────────
-        val emerald   = MaterialTheme.colorScheme.primary
-        val borderPx  = with(androidx.compose.ui.platform.LocalDensity.current) {
+        // ── Banner ───────────────────────────────────────────────────────────
+        val emerald  = MaterialTheme.colorScheme.primary
+        val borderPx = with(androidx.compose.ui.platform.LocalDensity.current) {
             MinimalTokens.BorderWidth.toPx()
         }
-        Box(
-            Modifier
+        AnimatedBanner(
+            url = "https://1.bp.blogspot.com/-7A4WynwLsMw/XbBpCXG8fHI/AAAAAAAAMt4/uOa1bpLskYgrwGbllhSu2SDj_Mig8SXJQCLcBGAsYHQ/s1600/2000_600px.gif",
+            contentDescription = "Profile banner",
+            modifier = Modifier
                 .fillMaxWidth()
-                // Reserve banner height PLUS the half-avatar that hangs below
-                .height(120.dp + avatarOverlap),
-        ) {
-            // Banner
-            AnimatedBanner(
-                url = "https://1.bp.blogspot.com/-7A4WynwLsMw/XbBpCXG8fHI/AAAAAAAAMt4/uOa1bpLskYgrwGbllhSu2SDj_Mig8SXJQCLcBGAsYHQ/s1600/2000_600px.gif",
-                contentDescription = "Profile banner",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .align(Alignment.TopStart)
-                    .drawBehind {
-                        drawLine(
-                            color = emerald,
-                            start = Offset(0f, size.height - borderPx / 2),
-                            end   = Offset(size.width, size.height - borderPx / 2),
-                            strokeWidth = borderPx,
-                        )
-                    },
-            )
+                .height(120.dp)
+                .drawBehind {
+                    drawLine(
+                        color = emerald,
+                        start = Offset(0f, size.height - borderPx / 2),
+                        end   = Offset(size.width, size.height - borderPx / 2),
+                        strokeWidth = borderPx,
+                    )
+                },
+        )
 
-            // Profile picture — overlaps banner by avatarOverlap (60dp).
-            // Uses AvatarImage (expect/actual) so on web it renders as an
-            // HTML <img> at z-index 3, sitting above the banner <img> (z-index 2).
-            AvatarImage(
-                url = "https://avatars.githubusercontent.com/Tejas-Venugopal",
-                contentDescription = "Profile picture",
-                modifier = Modifier
-                    .padding(start = 32.dp)
-                    .size(avatarSize)
-                    .align(Alignment.BottomStart),
-            )
-        }
+        // ── Avatar — clearly below the banner with 16dp gap ──────────────────
+        Spacer(Modifier.height(16.dp))
+        AvatarImage(
+            url = "https://avatars.githubusercontent.com/Tejas-Venugopal",
+            contentDescription = "Profile picture",
+            modifier = Modifier
+                .padding(start = 32.dp)
+                .size(avatarSize),
+        )
 
         // ── Bio + Stats ─────────────────────────────────────────────────────
         BoxWithConstraints(
@@ -254,7 +241,7 @@ fun ProfileSection() {
 private fun ProfileBio(modifier: Modifier = Modifier) {
     Column(modifier) {
         Text(
-            text = "Hey, I'm Tejas.\nAn Android, kotlin & KMP Engineer.",
+            text = "Hey, I'm Tejas.\nAn Android, Kotlin & KMP Engineer.",
             color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Black,
             fontSize = 42.sp,
