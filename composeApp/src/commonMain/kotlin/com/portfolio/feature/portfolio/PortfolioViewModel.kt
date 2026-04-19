@@ -68,7 +68,7 @@ class PortfolioViewModel(
             description = "Production Android healthcare app for diabetes management " +
                 "serving Eli Lilly patients (Lilly Health). Led migration of core module " +
                 "from Java/MVP to Kotlin + Jetpack Compose with MVI architecture and " +
-                "StateFlow. Company: Welldoc Software Pvt Ltd (2023 - Present).",
+                "StateFlow.\n\nCompany: Welldoc Software Pvt Ltd (2023 - Present).",
             tools = listOf("Kotlin", "Jetpack Compose", "MVI", "StateFlow", "Hilt"),
             githubUrl = "",
             imageUrl = null,
@@ -76,11 +76,11 @@ class PortfolioViewModel(
         Project(
             id = "kmp-portfolio",
             title = "This Portfolio — KMP × Wasm",
-            description = "The site you're reading. One Kotlin codebase shipping native Android, " +
-                "native iOS and a Kotlin/Wasm web build via Compose Multiplatform. " +
-                "Sub-300KB gzipped Wasm payload, 0dp-elevation design system, and a strict " +
-                "MVI feature module reused across all three targets.",
-            tools = listOf("Kotlin", "Compose", "Wasm", "MVI", "Coil 3"),
+            description = "A developer portfolio built entirely in Kotlin using Compose Multiplatform. " +
+                "One codebase shipping to Android, iOS and Web (Wasm). " +
+                "Built with MVI architecture, Kotlin 2.0, Coil 3 for image loading, and Ktor 3.0 " +
+                "for networking. Sub-300KB gzipped Wasm payload.",
+            tools = listOf("Kotlin 2.0", "KMP", "Compose", "Wasm", "MVI", "Ktor"),
             githubUrl = "https://github.com/Tejas-Venugopal/kmp-portfolio",
             imageUrl = null,
         ),

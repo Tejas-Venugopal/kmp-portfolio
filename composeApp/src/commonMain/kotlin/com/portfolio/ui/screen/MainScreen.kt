@@ -59,8 +59,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -248,7 +251,7 @@ fun ProfileSection() {
 private fun ProfileBio(modifier: Modifier = Modifier) {
     Column(modifier) {
         Text(
-            text = "Hey, I'm Tejas.\nA KMP & Android Engineer.",
+            text = "Hey, I'm Tejas.\nAn Android, kotlin & KMP Engineer.",
             color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Black,
             fontSize = 42.sp,
@@ -256,9 +259,9 @@ private fun ProfileBio(modifier: Modifier = Modifier) {
         )
         Spacer(Modifier.height(20.dp))
         Text(
-            text = "I'm passionate about clean architecture, unidirectional data flow, and shipping " +
-                    "pixel-perfect experiences across Android, iOS and Web from a single Kotlin codebase. " +
-                    "3+ years turning complex product requirements into maintainable, performant apps.",
+            text = "3+ years building production Android apps at Welldoc." +
+                    "Passionate about clean architecture, MVI, MVVM and Jetpack Compose. "+
+                    "Currently shipping across Android, iOS and Web from a single Kotlin codebase ",
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f),
             fontFamily = FontFamily.Monospace,
             fontSize = 15.sp,
@@ -476,8 +479,23 @@ private fun ProjectCard(project: Project, onClick: () -> Unit) {
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Spacer(Modifier.height(12.dp))
+            // Render description; bold any segment that starts with "Company:"
+            val descriptionText = buildAnnotatedString {
+                val boldLabel = "Company:"
+                val text = project.description
+                val idx = text.indexOf(boldLabel)
+                if (idx == -1) {
+                    append(text)
+                } else {
+                    append(text.substring(0, idx))
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(boldLabel)
+                    }
+                    append(text.substring(idx + boldLabel.length))
+                }
+            }
             Text(
-                text = project.description,
+                text = descriptionText,
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
             )
