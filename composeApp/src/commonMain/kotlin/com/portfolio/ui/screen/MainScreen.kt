@@ -82,6 +82,7 @@ import com.portfolio.feature.portfolio.PortfolioState
 import com.portfolio.feature.portfolio.PortfolioViewModel
 import com.portfolio.feature.portfolio.Project
 import com.portfolio.platform.AnimatedBanner
+import com.portfolio.platform.AvatarImage
 import com.portfolio.platform.openUrl
 import com.portfolio.ui.theme.MinimalTokens
 
@@ -208,21 +209,16 @@ fun ProfileSection() {
                     },
             )
 
-            // Profile picture — overlaps banner by avatarOverlap (60dp)
-            AsyncImage(
-                model = ImageRequest.Builder(LocalPlatformContext.current)
-                    .data("https://avatars.githubusercontent.com/Tejas-Venugopal")
-                    .crossfade(true)
-                    .crossfade(durationMillis = 400)
-                    .build(),
+            // Profile picture — overlaps banner by avatarOverlap (60dp).
+            // Uses AvatarImage (expect/actual) so on web it renders as an
+            // HTML <img> at z-index 3, sitting above the banner <img> (z-index 2).
+            AvatarImage(
+                url = "https://avatars.githubusercontent.com/Tejas-Venugopal",
                 contentDescription = "Profile picture",
-                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .padding(start = 32.dp)
                     .size(avatarSize)
-                    .align(Alignment.BottomStart)
-                    .clip(CircleShape)
-                    .border(MinimalTokens.BorderWidth, emerald, CircleShape),
+                    .align(Alignment.BottomStart),
             )
         }
 
