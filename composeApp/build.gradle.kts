@@ -82,6 +82,7 @@ kotlin {
 
         if (!isCI) {
             androidMain.dependencies {
+                implementation(compose.uiTooling)
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.core.ktx)
                 implementation(libs.ktor.client.okhttp)

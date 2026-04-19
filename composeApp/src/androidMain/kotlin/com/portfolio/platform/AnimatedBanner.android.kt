@@ -22,7 +22,7 @@ actual fun AnimatedBanner(
             .repeatCount(Int.MAX_VALUE)   // loop the GIF forever
             .build(),
         contentDescription = contentDescription,
-        contentScale = ContentScale.Crop,
+        contentScale = ContentScale.FillBounds,  // fills bounds exactly — no cropping
         modifier = modifier,
     )
 }
